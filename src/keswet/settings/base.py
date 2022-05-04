@@ -44,10 +44,14 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "keswet.apps.core",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware"
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
