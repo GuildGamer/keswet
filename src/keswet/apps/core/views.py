@@ -130,8 +130,8 @@ class UserAuthViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        token = Token.objects.create(user=user)
-        user.token = token.key
+        # token = Token.objects.create(user=user)
+        # user.token = token.key
         user.save()
         user.refresh_from_db()
         data = sz.UserDetailSerializer(user).data
