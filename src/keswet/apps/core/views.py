@@ -8,6 +8,8 @@ from rest_framework import parsers
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 
 User = get_user_model()
@@ -36,7 +38,7 @@ class UserViewSet(viewsets.ModelViewSet):
         )
         if not serializer.is_valid():
             return Response(
-                {"success": False, "error": serializer.errors},
+                {"success": False, "type":None, "error": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -60,19 +62,34 @@ class UserViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(f"ERROR {e}")
             return Response(
-                {"success": False, "error": f"{e}"},
+                {"success": False, "type":None, "error": f"{e}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
         if not created:
             return Response(
                 {
                     "success": False,
+                    "type": None,
                     "error": "Looks like you already have an account, sign in instead?",
                 },
                 status=status.HTTP_409_CONFLICT,
             )
-        user.set_password(password)
 
+        try:
+            validate_password(password, user=user)
+
+        except ValidationError as e:
+            user.delete()
+            return Response(
+                {
+                    "success": False,
+                    "type": "password_validation",
+                    "error": e,
+                },
+            )
+
+        user.set_password(password)
         user.save()
 
         return Response(
